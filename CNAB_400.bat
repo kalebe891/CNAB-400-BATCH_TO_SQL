@@ -1,28 +1,53 @@
- @echo off
-TITLE *** Homologacao ***
-IF EXIST Homologacao.txt del Homologacao.txt
+@echo off
+cls
+TITLE *** Homologacao CNAB 400 ***
+
+set "arqHomolog="
+set "hoje=%date%"
+set "horaAtual=%time%"
+set "ano=%hoje:~-4%"
+set "mes=%hoje:~3,2%"
+set "dia=%hoje:~0,2%"
+set "dataAtual=%ano%-%mes%-%dia%"
+set "hora=%horaAtual:~0,2%"
+set "minuto=%horaAtual:~3,2%"
+set "segundo=%horaAtual:~6,2%"
+set "horaFormatada=%hora%:%minuto%:%segundo%"
+
+
 :LOOP
+ECHO DECISAO SISTEMAS - IMPLANTACAO
 ECHO.
-ECHO Escolha o Sistema.
+ECHO Escolha o Sistema:
 ECHO.
 ECHO 1. DIFACT
 ECHO 2. DISECURIT
 ECHO 3. DIESC
-
 ECHO.
+
 SET Choice=
-SET /P Choice=Digite a opcao desejada e pressione Enter:
-IF NOT ‘%Choice%’==” SET Choice=%Choice:~0,1%
+SET /P Choice=Digite a opcao desejada e pressione Enter: 
+IF NOT '%Choice%'=='' SET Choice=%Choice:~0,1%
 ECHO.
-IF %Choice% == 1 GOTO :DIFACT
-IF %Choice% == 2 GOTO :DISECURIT
-IF %Choice% == 3 GOTO :DISECURIT
 
-ECHO “%Choice%” opcao nao valida, tente novamente!
+IF "%Choice%"=="1" (
+    SET "emitente=Factoring"
+    GOTO :DIFACT)
+
+IF "%Choice%"=="2" (
+    SET "emitente=Securitizadora"
+    GOTO :DISECURIT)
+
+IF "%Choice%"=="3" (
+    SET "emitente=ESC"
+    GOTO :DISECURIT)
+
+ECHO "%Choice%" opcao nao valida, tente novamente!
+GOTO :LOOP
 
 :DIFACT
 ECHO.
-ECHO Homologacao CNAB400
+ECHO Difact - Homologacao CNAB 400
 ECHO.
 ECHO 1. Banco do Brasil
 ECHO 2. Bradesco
@@ -33,25 +58,39 @@ ECHO 6. CEF
 ECHO 7. INTER
 ECHO 8. MONEY PLUS
 ECHO.
+
 SET Choice=
 SET /P Choice=Digite a opcao desejada e pressione Enter:
-IF NOT ‘%Choice%’==” SET Choice=%Choice:~0,1%
+IF NOT '%Choice%'=='' SET Choice=%Choice:~0,1%
 ECHO.
-IF %Choice% == 1 GOTO :BB
+
+IF %Choice% == 1 GOTO :Banco do Brasil
 IF %Choice% == 2 GOTO :BRADESCO
 IF %Choice% == 3 GOTO :ITAU
 IF %Choice% == 4 GOTO :SANTANDER
 IF %Choice% == 5 GOTO :SAFRA
 IF %Choice% == 6 GOTO :CEF
 IF %Choice% == 7 GOTO :INTER
-IF %Choice% == 8 GOTO :MONEY PLUS
+IF %Choice% == 8 GOTO :MONEYPLUS
 
-ECHO “%Choice%” opcao nao valida, tente novamente!
+ECHO "%Choice%" opcao nao valida, tente novamente!
+GOTO :DIFACT
 
-:BB
-Echo Titular da conta (Maiusculo)
-set /p titular=
+:Banco do Brasil
+Echo Banco do Brasil:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia com digito
 set /p agencia=
 set agenciac=%agencia%
@@ -85,25 +124,36 @@ Echo 03 - Envio apos 3 dias do vencimento
 Echo 04 - Envio apos 4 dias do vencimento
 Echo 05 - Envio apos 5 dias do vencimento
 set /p protesto=
-cd desktop
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%%contac%000000','%titular%','02                  ','   ','%agenciac%%contac%      ','0000                ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio%','                    ','                    ',' 000000                ','                  ','7                   ','0001-01-01','2017-02-20','        ','DECISAO ','        ','15:13:46','                    ','001                 ','%convenio%',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%%contac%000000','%titular%','02                  ','   ','%agenciac%%contac%      ','0000                ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio%','                    ','                    ',' 000000                ','                  ','7                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','                    ','001                 ','%convenio%',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (1,39,63,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,64,80,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,146,148,149,'1                   ',150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,271,275,314,315,326,327,334,335,349,350,351,92,94,'                    ',395,400,352,391,0,0,88,88,0,0,81,84,0,0,89,91,92,94,'%variacao%                 ',32,38,95,95,0,0,96,101,0,0,'    ',10,11,'1                   ',12,19,'COBRANCA       ',27,46,47,76,95,100,0,0,'                    ',0,0,'   ',395,400,'1                   ',0,0,'  ',101,107,77,79,80,94,0,0,'    ',392,393,0,0,'0000                ','                    ',64,80,0,0,'                                                  ',0,0,'                                                  ',0,0,0,0,'                                                  ',0,0,'                                                  ',182,188,189,201,215,227,'2005-10-27','2017-02-20', >> Homologacao.txt
-echo 'DECISAO ','DECISAO ','        ','10:45:37',130,136,1,1,153,165,166,168,169,173,87,88,1,9,'02RETORNO           ',101,107,117,126,0,0,280,292,107,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=1 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (1,39,63,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,64,80,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,146,148,149,'1                   ',150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,271,275,314,315,326,327,334,335,349,350,351,92,94,'                    ',395,400,352,391,0,0,88,88,0,0,81,84,0,0,89,91,92,94,'%variacao%                 ',32,38,95,95,0,0,96,101,0,0,'    ',10,11,'1                   ',12,19,'COBRANCA       ',27,46,47,76,95,100,0,0,'                    ',0,0,'   ',395,400,'1                   ',0,0,'  ',101,107,77,79,80,94,0,0,'    ',392,393,0,0,'0000                ','                    ',64,80,0,0,'                                                  ',0,0,'                                                  ',0,0,0,0,'                                                  ',0,0,'                                                  ',182,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO ','DECISAO ','        ','10:45:37',130,136,1,1,153,165,166,168,169,173,87,88,1,9,'02RETORNO           ',101,107,117,126,0,0,280,292,107,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=1 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :BRADESCO
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Bradesco:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -123,7 +173,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-20%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -156,25 +206,37 @@ Echo 1 - Banco
 Echo 2 - Factoring
 set /p papeleta=
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%protesto%                  ','%dias%               ','                    ',%juros%,'%papeleta%            ','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','15:13:46','000                 ','000','                    ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%protesto%                  ','%dias%               ','                    ',%juros%,'%papeleta%            ','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','%horaFormatada%','000                 ','000','                    ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (237,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,62,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,0,0,'',0,0,'',176,188,189,201,215,227,'2005-10-27','2017-08-04', >> Homologacao.txt
-echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=237; >> Homologacao.txt
-echo update banco set (bannom) = ('BRADESCO') where bancod=237  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (237,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,62,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,0,0,'',0,0,'',176,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=237; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BRADESCO') where bancod=237  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :ITAU
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Itau:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia
 set /p agencia=
 set agenciac=%agencia%
@@ -203,26 +265,38 @@ set /p protesto=
 ECHO.
 Echo Informe dias para protesto (2 digitos)
 set /p dias=
-cd desktop
+ 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%00%contac%','%titular%','02                  ','   ','%agenciac%00%contac%','00000               ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','           ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-02-20','        ','DECISAO ','        ','15:13:46','341                  ','                 ','         ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%00%contac%','%titular%','02                  ','   ','%agenciac%00%contac%','00000               ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','           ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','341                  ','                 ','         ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (341,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,29,38,62,63,70,0,0,84,86,109,110,111,120,121,126,127,139,0,0,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,264,275,314,315,326,327,334,335,349,350,351,108,108,'I'                   ,395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'                    ',0,0,0,0,0,0,0,0,0,0,'    ',1,9,'01REMESSA           ',10,26,'01COBRANCA     ',27,38,47,76,95,100,0,0,'                    ',18,19,'CA' ,395,400,1                   ,0,0,'  ',0,0,77,79,80,94,140,142,'    ',392,393,0,0,'          ','            ',63,70,0,0,'          ',0,0,'                    ' ,0,0,34,37,'0000',71,83,'0000000000000',176,188,0,0,215,227,'2005-10-27','2017-08-07', >> Homologacao.txt
-echo 'DECISAO' ,'DECISAO' ,'        ','17:31:01',0,0,1,1,153,165,166,168,169,172,378,385,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,280,292,83,85,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=341; >> Homologacao.txt
-echo update banco set (bannom) = ('BANCO ITAU SA') where bancod=341 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (341,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,29,38,62,63,70,0,0,84,86,109,110,111,120,121,126,127,139,0,0,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,264,275,314,315,326,327,334,335,349,350,351,108,108,'I'                   ,395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'                    ',0,0,0,0,0,0,0,0,0,0,'    ',1,9,'01REMESSA           ',10,26,'01COBRANCA     ',27,38,47,76,95,100,0,0,'                    ',18,19,'CA' ,395,400,1                   ,0,0,'  ',0,0,77,79,80,94,140,142,'    ',392,393,0,0,'          ','            ',63,70,0,0,'          ',0,0,'                    ' ,0,0,34,37,'0000',71,83,'0000000000000',176,188,0,0,215,227,'2005-10-27','2017-08-07', >> "%arqHomolog%"
+echo 'DECISAO' ,'DECISAO' ,'        ','%horaFormatada%',0,0,1,1,153,165,166,168,169,172,378,385,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,280,292,83,85,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=341; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BANCO ITAU SA') where bancod=341 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :SANTANDER
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Santander:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -285,24 +359,36 @@ Echo Banco Emitente informar 00000 se Factoring emitente informar numero da agen
 set /p cobrador=
 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%transmissao%','%titular%','02                  ','   ','%convenio%             ','                    ','%protesto%               ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio% ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-07-20','        ','DECISAO ','        ','17:42:25','033                 ','%cobrador%               ','%convenio%             ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%transmissao%','%titular%','02                  ','   ','%convenio%             ','                    ','%protesto%               ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio% ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-07-20','        ','DECISAO ','        ','17:42:25','033                 ','%cobrador%               ','%convenio%             ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (33,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,0,0,38,62,63,70,0,0,0,0,109,110,111,120,121,126,127,139,143,147,63,65,148,149,01                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,383,385,'I%complemento%'                 ,395,400,0,0,0,0,0,0,0,0,18,37,102,108,78,78,79,82,'%multac%'                ,0,0,0,0,0,0,0,0,83,84,'00'  ,10,11,01                  ,12,26,'COBRANCA'       ,27,46,47,76,95,100,101,116,'0000000000000000'    ,0,0,'   ',395,400,'000001'              ,0,0,'  ',0,0,77,79,80,94,140,142,%cmulta%   ,392,393,0,0,'%transmissao%','00000%papeleta%'              ,63,73,0,0,'                                                 ',0,0,'                                                  ',0,0,143,147,00000                                             ,71,76,000000                                            ,178,188,189,201,215,22,'2005-10-27','2017-07-25', >> Homologacao.txt
-echo 'DECISAO' ,'DECISAO','        ','15:14:26',0,0,1,1,153,165,166,168,169,173,0,0,1,26,'02RETORNO01COBRANCA' ,395,400,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=33; >> Homologacao.txt
-echo update banco set (bannom) = ('SANTANDER') where bancod=33 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (33,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,0,0,38,62,63,70,0,0,0,0,109,110,111,120,121,126,127,139,143,147,63,65,148,149,01                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,383,385,'I%complemento%'                 ,395,400,0,0,0,0,0,0,0,0,18,37,102,108,78,78,79,82,'%multac%'                ,0,0,0,0,0,0,0,0,83,84,'00'  ,10,11,01                  ,12,26,'COBRANCA'       ,27,46,47,76,95,100,101,116,'0000000000000000'    ,0,0,'   ',395,400,'000001'              ,0,0,'  ',0,0,77,79,80,94,140,142,%cmulta%   ,392,393,0,0,'%transmissao%','00000%papeleta%'              ,63,73,0,0,'                                                 ',0,0,'                                                  ',0,0,143,147,00000                                             ,71,76,000000                                            ,178,188,189,201,215,22,'2005-10-27','2017-07-25', >> "%arqHomolog%"
+echo 'DECISAO' ,'DECISAO','        ','15:14:26',0,0,1,1,153,165,166,168,169,173,0,0,1,26,'02RETORNO01COBRANCA' ,395,400,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=33; >> "%arqHomolog%"
+echo update banco set (bannom) = ('SANTANDER') where bancod=33 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :SAFRA
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Safra:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia
 set /p agencia=
 set agenciac=%agencia%
@@ -341,25 +427,37 @@ set /p juros=
 ECHO.
 Echo Informe dias para protesto (2 digitos)
 set /p dias=
-cd desktop
+ 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%%contac%','%titular%',02              ,'        ','%agenciac%%contac%','%agencia%','%cmulta%','%protesto%','        ','%juros%' ,'      '  ,'        ','        ','        ','        ','        ','        ','%dias%'  ,'        ','0001-01-01',' 2018-02-27','         ','DECISAO   ','          ','09:31:16  ','        ','          ','          ','1         ',0         , '0.00      ','1         ','%multa%') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%%contac%','%titular%',02              ,'        ','%agenciac%%contac%','%agencia%','%cmulta%','%protesto%','        ','%juros%' ,'      '  ,'        ','        ','        ','        ','        ','        ','%dias%'  ,'        ','0001-01-01',' 2018-02-27','         ','DECISAO   ','          ','09:31:16  ','        ','          ','          ','1         ',0         , '0.00      ','1         ','%multa%') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (422,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,63,71,0,0,108,108,109,110,111,120,121,126,127,139,0,0,143,147,148,149,1,150,150,'N',151,156,157,158,159,160,161,173,25.00,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,324,327,334,335,349,350,351,389,391,'000',395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,1 ,12,19,'COBRANÇA'       ,27,40,47,76,95,100,0,0,''  ,0,0,''   ,395,400,1                   ,0,0,''  ,392,394,77,79,80,90,140,142,''    ,0,0,0,0,''                    ,''                    ,63,71,0,0,''                                                  ,0,0,'' ,0,0,102,104,'000',106,107,'%dias%',176,188,189,201,215,227,'2005-10-27','2018-02-22', >> Homologacao.txt
-echo 'DECISAO','DECISAO',''        ,'15:09:58',0,0,0,0,153,165,166,168,169,173,105,107,3,19,'RETORNO01COBRANCA',392,394,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=422 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (422,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,63,71,0,0,108,108,109,110,111,120,121,126,127,139,0,0,143,147,148,149,1,150,150,'N',151,156,157,158,159,160,161,173,25.00,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,324,327,334,335,349,350,351,389,391,'000',395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,1 ,12,19,'COBRAN A'       ,27,40,47,76,95,100,0,0,''  ,0,0,''   ,395,400,1                   ,0,0,''  ,392,394,77,79,80,90,140,142,''    ,0,0,0,0,''                    ,''                    ,63,71,0,0,''                                                  ,0,0,'' ,0,0,102,104,'000',106,107,'%dias%',176,188,189,201,215,227,'2005-10-27','2018-02-22', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO',''        ,'15:09:58',0,0,0,0,153,165,166,168,169,173,105,107,3,19,'RETORNO01COBRANCA',392,394,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=422 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :CEF
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Caixa Economica Fedral:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -379,7 +477,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-7%"
 ECHO.
-Echo Disribuição do Boleto (Se emitente Factoring)
+Echo Disribui  o do Boleto (Se emitente Factoring)
 Echo 11 (titulo Registrado, emissao CAIXA)
 Echo 14 (titulo Registrado, emissao Beneficiario)
 set /p carteira=
@@ -415,25 +513,37 @@ Echo 2 - Factoring
 set /p papeleta=
 ECHO.
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%%convenioc%','%titular%'       ,'02'  ,' ','%convenioc%','00000' ,'%protesto%','00','00','%juros%' ,'%papeleta%'  ,'        ','        ','%agenciac%%convenioc%','        ','        ','        ','%dias%'  ,'1 ','0001-01-01','2018-02-27','','DECISAO ','','09:31:16','000','104 ','','0','0','0.00','1','%multa%') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%%convenioc%','%titular%'       ,'02'  ,' ','%convenioc%','00000' ,'%protesto%','00','00','%juros%' ,'%papeleta%'  ,'        ','        ','%agenciac%%convenioc%','        ','        ','        ','%dias%'  ,'1 ','0001-01-01','2018-02-27','','DECISAO ','','09:31:16','000','104 ','','0','0','0.00','1','%multa%') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (104,32,56,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,21,27,32,56,57,73,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,147,148,149,02                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,29,31,000                 ,395,400,368,389,28,28,0,0,85,106,0,0,0,0,0,0,0,0,'  ',0,0,0,0,0,0,0,0,394,394,1   ,10,11,1                   ,12,26,'COBRANCA' ,27,36,47,76,95,100,0,0, ' ' ,0,0,' ',395,400,000001              ,0,0,' ',390,394,77,79,80,94,18,20,'',0,0,390,391,' ' ,' ' ,57,73,101,103,'007',0,0,' ',0,0,107,108,'01',392,393,'%dias%',176,188,0,0,215,217,'2005-10-27','2018-04-30', >> Homologacao.txt
-echo 'DECISAO','DECISAO' ,' ' ,'14:56:49',0,0,1,1,153,165,166,168,169,173,80,82,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,0,0,107,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=104; >> Homologacao.txt
-echo update banco set (bannom) = ('CAIXA ECONOMICA') where bancod=104  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (104,32,56,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,21,27,32,56,57,73,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,147,148,149,02                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,29,31,000                 ,395,400,368,389,28,28,0,0,85,106,0,0,0,0,0,0,0,0,'  ',0,0,0,0,0,0,0,0,394,394,1   ,10,11,1                   ,12,26,'COBRANCA' ,27,36,47,76,95,100,0,0, ' ' ,0,0,' ',395,400,000001              ,0,0,' ',390,394,77,79,80,94,18,20,'',0,0,390,391,' ' ,' ' ,57,73,101,103,'007',0,0,' ',0,0,107,108,'01',392,393,'%dias%',176,188,0,0,215,217,'2005-10-27','2018-04-30', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO' ,' ' ,'14:56:49',0,0,1,1,153,165,166,168,169,173,80,82,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,0,0,107,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=104; >> "%arqHomolog%"
+echo update banco set (bannom) = ('CAIXA ECONOMICA') where bancod=104  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
-:INTER	
-Echo Titular da conta (Maiusculo)
+:INTER
+Echo Inter:
+ECHO.	
+Echo Titular da conta (Maximo 50 Caracteres)
 set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
 ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -447,7 +557,7 @@ set contac=%conta%
 set "contac=000000000%contac%"
 set "contac=%contac:~-10%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -475,30 +585,42 @@ for /f "tokens=1,2 delims=." %%a in ("%multa%") do set multac=%%a%%b
 set "multac=00000%multac%"
 set "multac=%multac:~-4%"
 ECHO.
-Echo Data limite de pagamento após vencimento ?
+Echo Data limite de pagamento ap s vencimento ?
 Echo 30 - dias
 Echo 60 - dias
 set /p lpag=
 
-cd desktop
-echo update carban set (cabdtinrg, cabdtalrg, cabusuinc, cabusualt, cabhrinrg, cabhralrg, cabcedente, cabcconson, cabccoultr, cabccolay, cabresimp, cabcodemib, ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem, cabsit, cabarqmod, cabdirret, cabdirrem, cabarqbol) = >> Homologacao.txt
-echo ('2021-09-16', '2021-09-17', '        ', 'DECISAO ', '14:50:20', '09:44:40', '                    ', 0, 0, 0, '  ', '          ', '                    ', '%titular%                ', '                    ', '   ', '%carteirac%%agenciac%%contac%', '00000               ', '%cmulta%', '%cjuros%', '                    ', %juros%, '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', ' ', '1', '0001-01-01', '2021-09-16', '        ', 'DECISAO ', '        ', '17:09:29', '%lpag%', '                    ', '                    ', 1, 0, 0.00, 1, %multa%, 'A', '', '', 'C:\DIFACTW\EXPORTAR\', '') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (cabdtinrg, cabdtalrg, cabusuinc, cabusualt, cabhrinrg, cabhralrg, cabcedente, cabcconson, cabccoultr, cabccolay, cabresimp, cabcodemib, ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem, cabsit, cabarqmod, cabdirret, cabdirrem, cabarqbol) = >> "%arqHomolog%"
+echo ('%dataAtual%', '%dataAtual%', '        ', 'DECISAO ', '14:50:20', '%horaFormatada%', '                    ', 0, 0, 0, '  ', '          ', '                    ', '%titular%                ', '                    ', '   ', '%carteirac%%agenciac%%contac%', '00000               ', '%cmulta%', '%cjuros%', '                    ', %juros%, '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', ' ', '1', '0001-01-01', '%dataAtual%', '        ', 'DECISAO ', '        ', '%horaFormatada%', '%lpag%', '                    ', '                    ', 1, 0, 0.00, 1, %multa%, 'A', '', '', 'C:\DIFACTW\EXPORTAR\', '') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (77, 38, 62, 90, 91, 92, 97, 0, 0, 0, 0, 160, 172, 0, 0, 0, 0, 0, 0, 21, 37, 38, 62, 66, 70, 0, 0, 0, 0, 109, 110, 111, 120, 121, 126, 127, 139, 0, 0, 0, 0, 148, 149, '99                  ', 150, 150, 'N', 151, 156, 66, 66, 160, 160, 161, 173, %juros%, 0, 0, 185, 197, 198, 201, 202, 220, 221, 222, 0, 223, 236, 237, 276, 277, 316, 0, 0, 317, 324, 0, 0, 0, 0, 90, 100, '00000000000         ', 395, 400, 0, 0, 0, 0, 0, 0, 325, 394, 0, 0, 0, 0, 0, 0, 67, 79, '0000000000000       ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '    ', 1, 9, '01REMESSA           ', 10, 26, '01COBRANCA     ', 27, 46, 47, 76, 95, 100, 0, 0, '                    ', 0, 0, '   ', 395, 400, '1                   ', 0, 0, '  ', 111, 117, 77, 79, 80, 94, 140, 141, '    ', 0, 0, 0, 0, '       ', '                    ', 71, 81, 0, 0, '                                                  ', 0, 0, '                                                  ', 0, 0, 80, 83, '%multac%', 0, 0, 0, 0, 0, 0, 0, 0, 0, '2005-10-27', '2021-09-17', >> Homologacao.txt
-echo  'DECISAO ', 'DECISAO ', '        ', '17:31:01', 0, 0, 1, 1, 125, 137, 138, 140, 141, 144, 241, 380, 0, 0, '                    ', 0, 0, 98, 107, 0, 0, 0, 0, 87, 89, 0, 0, 0, 0, 0, 0) >> Homologacao.txt
-echo where ban3cod=77; >> Homologacao.txt
-echo update banco set (bannom) = ('Inter') where bancod=77  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (77, 38, 62, 90, 91, 92, 97, 0, 0, 0, 0, 160, 172, 0, 0, 0, 0, 0, 0, 21, 37, 38, 62, 66, 70, 0, 0, 0, 0, 109, 110, 111, 120, 121, 126, 127, 139, 0, 0, 0, 0, 148, 149, '99                  ', 150, 150, 'N', 151, 156, 66, 66, 160, 160, 161, 173, %juros%, 0, 0, 185, 197, 198, 201, 202, 220, 221, 222, 0, 223, 236, 237, 276, 277, 316, 0, 0, 317, 324, 0, 0, 0, 0, 90, 100, '00000000000         ', 395, 400, 0, 0, 0, 0, 0, 0, 325, 394, 0, 0, 0, 0, 0, 0, 67, 79, '0000000000000       ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '    ', 1, 9, '01REMESSA           ', 10, 26, '01COBRANCA     ', 27, 46, 47, 76, 95, 100, 0, 0, '                    ', 0, 0, '   ', 395, 400, '1                   ', 0, 0, '  ', 111, 117, 77, 79, 80, 94, 140, 141, '    ', 0, 0, 0, 0, '       ', '                    ', 71, 81, 0, 0, '                                                  ', 0, 0, '                                                  ', 0, 0, 80, 83, '%multac%', 0, 0, 0, 0, 0, 0, 0, 0, 0, '2005-10-27', '%dataAtual%', >> "%arqHomolog%"
+echo  'DECISAO ', 'DECISAO ', '        ', '%horaFormatada%', 0, 0, 1, 1, 125, 137, 138, 140, 141, 144, 241, 380, 0, 0, '                    ', 0, 0, 98, 107, 0, 0, 0, 0, 87, 89, 0, 0, 0, 0, 0, 0) >> "%arqHomolog%"
+echo where ban3cod=77; >> "%arqHomolog%"
+echo update banco set (bannom) = ('Inter') where bancod=77  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :MONEY PLUS
-Echo Titular da conta (Maiusculo)
-set /p titular=
+Echo Money Plus:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -518,7 +640,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-20%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -542,53 +664,68 @@ ECHO.
 Echo Informe dias para protesto. (2 digitos, caso nao tenha interesse informar 00)
 set /p dias=
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%dias%                  ','00','                    ',%juros%,'2','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','15:13:46','000                 ','000','                    ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%dias%                  ','00','                    ',%juros%,'2','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','%horaFormatada%','000                 ','000','                    ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> Homologacao.txt
-echo (274,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,52,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','2017-08-04', >> Homologacao.txt
-echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> Homologacao.txt
-echo where ban3cod=274; >> Homologacao.txt
-echo update banco set (bannom) = ('BMP Money Plus') where bancod=274  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
+echo (274,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,52,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> "%arqHomolog%"
+echo where ban3cod=274; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BMP Money Plus') where bancod=274  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :DISECURIT
 ECHO.
-ECHO Homologacao CNAB400
+ECHO Disecurit - Homologacao CNAB 400
 ECHO.
 ECHO 1. Banco do Brasil
 ECHO 2. Bradesco
 ECHO 3. Itau
 ECHO 4. Santander
-ECHO 5. Safra
-ECHO 6. CEF
+ECHO 5. Safra 422
+ECHO 6. Caixa E.F.
 ECHO 7. INTER
 ECHO 8. MONEY PLUS
 ECHO.
+
 SET Choice=
 SET /P Choice=Digite a opcao desejada e pressione Enter:
-IF NOT ‘%Choice%’==” SET Choice=%Choice:~0,1%
+IF NOT '%Choice%'=='' SET Choice=%Choice:~0,1%
 ECHO.
-IF %Choice% == 1 GOTO :BB
-IF %Choice% == 2 GOTO :BRADESCO
-IF %Choice% == 3 GOTO :ITAU
-IF %Choice% == 4 GOTO :SANTANDER
-IF %Choice% == 5 GOTO :SAFRA
-IF %Choice% == 6 GOTO :CEF
-IF %Choice% == 7 GOTO :INTER
-IF %Choice% == 8 GOTO :MONEY PLUS
 
-ECHO “%Choice%” opcao nao valida, tente novamente!
+IF "%Choice%" == "1" GOTO :Banco do Brasil
+IF "%Choice%" == "2" GOTO :BRADESCO
+IF "%Choice%" == "3" GOTO :ITAU
+IF "%Choice%" == "4" GOTO :SANTANDER
+IF "%Choice%" == "5" GOTO :SAFRA
+IF "%Choice%" == "6" GOTO :CEF
+IF "%Choice%" == "7" GOTO :INTER
+IF "%Choice%" == "8" GOTO :MONEY PLUS
 
-:BB
-Echo Titular da conta (Maiusculo)
+ECHO  %Choice%  opcao nao valida, tente novamente!
+GOTO :DISECURIT
+
+:Banco do Brasil:
+Echo Banco do Brasil
+ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
 set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
 ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia com digito
 set /p agencia=
 set agenciac=%agencia%
@@ -622,25 +759,37 @@ Echo 03 - Envio apos 3 dias do vencimento
 Echo 04 - Envio apos 4 dias do vencimento
 Echo 05 - Envio apos 5 dias do vencimento
 set /p protesto=
-cd desktop
+ 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%%contac%000000','%titular%','02                  ','   ','%agenciac%%contac%      ','0000                ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio%','                    ','                    ',' 000000                ','                  ','7                   ','0001-01-01','2017-02-20','        ','DECISAO ','        ','15:13:46','                    ','001                 ','%convenio%',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%%contac%000000','%titular%','02                  ','   ','%agenciac%%contac%      ','0000                ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio%','                    ','                    ',' 000000                ','                  ','7                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','                    ','001                 ','%convenio%',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (1,39,63,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,64,80,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,146,148,149,'1                   ',150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,271,275,314,315,326,327,334,335,349,350,351,92,94,'                    ',395,400,352,391,0,0,88,88,0,0,81,84,0,0,89,91,92,94,'%variacao%                 ',32,38,95,95,0,0,96,101,0,0,'    ',10,11,'1                   ',12,19,'COBRANCA       ',27,46,47,76,95,100,0,0,'                    ',0,0,'   ',395,400,'1                   ',0,0,'  ',101,107,77,79,80,94,0,0,'    ',392,393,0,0,'0000                ','                    ',64,80,0,0,'                                                  ',0,0,'                                                  ',0,0,0,0,'                                                  ',0,0,'                                                  ',182,188,189,201,215,227,'2005-10-27','2017-02-20', >> Homologacao.txt
-echo 'DECISAO ','DECISAO ','        ','10:45:37',130,136,1,1,153,165,166,168,169,173,87,88,1,9,'02RETORNO           ',101,107,117,126,0,0,280,292,107,108) >> Homologacao.txt
-echo where ban3cod=1 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (1,39,63,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,64,80,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,146,148,149,'1                   ',150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,271,275,314,315,326,327,334,335,349,350,351,92,94,'                    ',395,400,352,391,0,0,88,88,0,0,81,84,0,0,89,91,92,94,'%variacao%                 ',32,38,95,95,0,0,96,101,0,0,'    ',10,11,'1                   ',12,19,'COBRANCA       ',27,46,47,76,95,100,0,0,'                    ',0,0,'   ',395,400,'1                   ',0,0,'  ',101,107,77,79,80,94,0,0,'    ',392,393,0,0,'0000                ','                    ',64,80,0,0,'                                                  ',0,0,'                                                  ',0,0,0,0,'                                                  ',0,0,'                                                  ',182,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO ','DECISAO ','        ','10:45:37',130,136,1,1,153,165,166,168,169,173,87,88,1,9,'02RETORNO           ',101,107,117,126,0,0,280,292,107,108) >> "%arqHomolog%"
+echo where ban3cod=1 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :BRADESCO
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO BRADESCO:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -660,7 +809,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-20%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -690,28 +839,40 @@ set /p dias=
 ECHO.
 Echo Emitente da Papeleta? (1 Digito)
 Echo 1 - Banco
-Echo 2 - Securitizadora
+Echo 2 - Factoring
 set /p papeleta=
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%protesto%                  ','%dias%               ','                    ',%juros%,'%papeleta%            ','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','15:13:46','000                 ','000','                    ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%protesto%                  ','%dias%               ','                    ',%juros%,'%papeleta%            ','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','%horaFormatada%','000                 ','000','                    ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (237,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,62,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','2017-08-04', >> Homologacao.txt
-echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108) >> Homologacao.txt
-echo where ban3cod=237; >> Homologacao.txt
-echo update banco set (bannom) = ('BRADESCO') where bancod=237  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (237,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,62,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108) >> "%arqHomolog%"
+echo where ban3cod=237; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BRADESCO') where bancod=237  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :ITAU
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO ITAU:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia
 set /p agencia=
 set agenciac=%agencia%
@@ -740,26 +901,38 @@ set /p protesto=
 ECHO.
 Echo Informe dias para protesto (2 digitos)
 set /p dias=
-cd desktop
+ 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%00%contac%','%titular%','02                  ','   ','%agenciac%00%contac%','00000               ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','           ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-02-20','        ','DECISAO ','        ','15:13:46','341                  ','                 ','         ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%00%contac%','%titular%','02                  ','   ','%agenciac%00%contac%','00000               ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','           ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','341                  ','                 ','         ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (341,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,29,38,62,63,70,0,0,84,86,109,110,111,120,121,126,127,139,0,0,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,264,275,314,315,326,327,334,335,349,350,351,108,108,'I'                   ,395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'                    ',0,0,0,0,0,0,0,0,0,0,'    ',1,9,'01REMESSA           ',10,26,'01COBRANCA     ',27,38,47,76,95,100,0,0,'                    ',18,19,'CA' ,395,400,1                   ,0,0,'  ',0,0,77,79,80,94,140,142,'    ',392,393,0,0,'          ','            ',63,70,0,0,'          ',0,0,'                    ' ,0,0,34,37,'0000',71,83,'0000000000000',176,188,0,0,215,227,'2005-10-27','2017-08-07', >> Homologacao.txt
-echo 'DECISAO' ,'DECISAO' ,'        ','17:31:01',0,0,1,1,153,165,166,168,169,172,378,385,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,280,292,83,85) >> Homologacao.txt
-echo where ban3cod=341; >> Homologacao.txt
-echo update banco set (bannom) = ('BANCO ITAU SA') where bancod=341 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (341,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,29,38,62,63,70,0,0,84,86,109,110,111,120,121,126,127,139,0,0,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,264,275,314,315,326,327,334,335,349,350,351,108,108,'I'                   ,395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'                    ',0,0,0,0,0,0,0,0,0,0,'    ',1,9,'01REMESSA           ',10,26,'01COBRANCA     ',27,38,47,76,95,100,0,0,'                    ',18,19,'CA' ,395,400,1                   ,0,0,'  ',0,0,77,79,80,94,140,142,'    ',392,393,0,0,'          ','            ',63,70,0,0,'          ',0,0,'                    ' ,0,0,34,37,'0000',71,83,'0000000000000',176,188,0,0,215,227,'2005-10-27','2017-08-07', >> "%arqHomolog%"
+echo 'DECISAO' ,'DECISAO' ,'        ','%horaFormatada%',0,0,1,1,153,165,166,168,169,172,378,385,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,280,292,83,85) >> "%arqHomolog%"
+echo where ban3cod=341; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BANCO ITAU SA') where bancod=341 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :SANTANDER
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO SANTANDER:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -815,31 +988,43 @@ set /p dias=
 ECHO.
 Echo Emitente da Papeleta? (1 Digito)
 Echo 1 - Banco
-Echo 5 - Securitizadora
+Echo 5 - Factoring
 set /p papeleta=
 ECHO.
 Echo Banco Emitente informar 00000 se Factoring emitente informar numero da agencia (3 Digito)
 set /p cobrador=
 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%transmissao%','%titular%','02                  ','   ','%convenio%             ','                    ','%protesto%               ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio% ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-07-20','        ','DECISAO ','        ','17:42:25','033                 ','%cobrador%               ','%convenio%             ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%transmissao%','%titular%','02                  ','   ','%convenio%             ','                    ','%protesto%               ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio% ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','2017-07-20','        ','DECISAO ','        ','17:42:25','033                 ','%cobrador%               ','%convenio%             ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (33,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,0,0,38,62,63,70,0,0,0,0,109,110,111,120,121,126,127,139,143,147,63,65,148,149,01                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,383,385,'I%complemento%'                 ,395,400,0,0,0,0,0,0,0,0,18,37,102,108,78,78,79,82,'%multac%'                ,0,0,0,0,0,0,0,0,83,84,'00'  ,10,11,01                  ,12,26,'COBRANCA'       ,27,46,47,76,95,100,101,116,'0000000000000000'    ,0,0,'   ',395,400,'000001'              ,0,0,'  ',0,0,77,79,80,94,140,142,%cmulta%   ,392,393,0,0,'%transmissao%','00000%papeleta%'              ,63,73,0,0,'                                                 ',0,0,'                                                  ',0,0,143,147,00000                                             ,71,76,000000                                            ,178,188,189,201,215,22,'2005-10-27','2017-07-25', >> Homologacao.txt
-echo 'DECISAO' ,'DECISAO','        ','15:14:26',0,0,1,1,153,165,166,168,169,173,0,0,1,26,'02RETORNO01COBRANCA' ,395,400,117,126,0,0,280,292,108,108) >> Homologacao.txt
-echo where ban3cod=33; >> Homologacao.txt
-echo update banco set (bannom) = ('SANTANDER') where bancod=33 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (33,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,0,0,38,62,63,70,0,0,0,0,109,110,111,120,121,126,127,139,143,147,63,65,148,149,01                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,383,385,'I%complemento%'                 ,395,400,0,0,0,0,0,0,0,0,18,37,102,108,78,78,79,82,'%multac%'                ,0,0,0,0,0,0,0,0,83,84,'00'  ,10,11,01                  ,12,26,'COBRANCA'       ,27,46,47,76,95,100,101,116,'0000000000000000'    ,0,0,'   ',395,400,'000001'              ,0,0,'  ',0,0,77,79,80,94,140,142,%cmulta%   ,392,393,0,0,'%transmissao%','00000%papeleta%'              ,63,73,0,0,'                                                 ',0,0,'                                                  ',0,0,143,147,00000                                             ,71,76,000000                                            ,178,188,189,201,215,22,'2005-10-27','2017-07-25', >> "%arqHomolog%"
+echo 'DECISAO' ,'DECISAO','        ','15:14:26',0,0,1,1,153,165,166,168,169,173,0,0,1,26,'02RETORNO01COBRANCA' ,395,400,117,126,0,0,280,292,108,108) >> "%arqHomolog%"
+echo where ban3cod=33; >> "%arqHomolog%"
+echo update banco set (bannom) = ('SANTANDER') where bancod=33 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :SAFRA
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO SAFRA:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia
 set /p agencia=
 set agenciac=%agencia%
@@ -878,25 +1063,37 @@ set /p juros=
 ECHO.
 Echo Informe dias para protesto (2 digitos)
 set /p dias=
-cd desktop
+ 
 
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%agenciac%%contac%','%titular%',02              ,'        ','%agenciac%%contac%','%agencia%','%cmulta%','%protesto%','        ','%juros%' ,'      '  ,'        ','        ','        ','        ','        ','        ','%dias%'  ,'        ','0001-01-01',' 2018-02-27','         ','DECISAO   ','          ','09:31:16  ','        ','          ','          ','1         ',0         , '0.00      ','1         ','%multa%') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%agenciac%%contac%','%titular%',02              ,'        ','%agenciac%%contac%','%agencia%','%cmulta%','%protesto%','        ','%juros%' ,'      '  ,'        ','        ','        ','        ','        ','        ','%dias%'  ,'        ','0001-01-01',' 2018-02-27','         ','DECISAO   ','          ','09:31:16  ','        ','          ','          ','1         ',0         , '0.00      ','1         ','%multa%') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (422,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,63,71,0,0,108,108,109,110,111,120,121,126,127,139,0,0,143,147,148,149,1,150,150,'N',151,156,157,158,159,160,161,173,25.00,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,324,327,334,335,349,350,351,389,391,'000',395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,1 ,12,19,'COBRANÇA'       ,27,40,47,76,95,100,0,0,''  ,0,0,''   ,395,400,1                   ,0,0,''  ,392,394,77,79,80,90,140,142,''    ,0,0,0,0,''                    ,''                    ,63,71,0,0,''                                                  ,0,0,'' ,0,0,102,104,'000',106,107,'%dias%',176,188,189,201,215,227,'2005-10-27','2018-02-22', >> Homologacao.txt
-echo 'DECISAO','DECISAO',''        ,'15:09:58',0,0,0,0,153,165,166,168,169,173,105,107,3,19,'RETORNO01COBRANCA',392,394,117,126,0,0,280,292,108,108) >> Homologacao.txt
-echo where ban3cod=422 >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (422,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,63,71,0,0,108,108,109,110,111,120,121,126,127,139,0,0,143,147,148,149,1,150,150,'N',151,156,157,158,159,160,161,173,25.00,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,324,327,334,335,349,350,351,389,391,'000',395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,1 ,12,19,'COBRAN A'       ,27,40,47,76,95,100,0,0,''  ,0,0,''   ,395,400,1                   ,0,0,''  ,392,394,77,79,80,90,140,142,''    ,0,0,0,0,''                    ,''                    ,63,71,0,0,''                                                  ,0,0,'' ,0,0,102,104,'000',106,107,'%dias%',176,188,189,201,215,227,'2005-10-27','2018-02-22', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO',''        ,'15:09:58',0,0,0,0,153,165,166,168,169,173,105,107,3,19,'RETORNO01COBRANCA',392,394,117,126,0,0,280,292,108,108) >> "%arqHomolog%"
+echo where ban3cod=422 >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :CEF
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO CAIXA ECOMICA FEDERAL:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -916,7 +1113,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-7%"
 ECHO.
-Echo Disribuição do Boleto (Se emitente Factoring)
+Echo Disribui  o do Boleto (Se emitente Factoring)
 Echo 11 (titulo Registrado, emissao CAIXA)
 Echo 14 (titulo Registrado, emissao Beneficiario)
 set /p carteira=
@@ -948,29 +1145,41 @@ set /p dias=
 ECHO.
 Echo Emitente da Papeleta? (1 Digito)
 Echo 1 - Banco
-Echo 2 - Securitizadora
+Echo 2 - Factoring
 set /p papeleta=
 ECHO.
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo (%agenciac%%convenioc%,'%titular%'       ,'02'  ,' ','%convenioc%','00000' ,'%protesto%','00','00','%juros%' ,'%papeleta%'  ,'        ','        ','%agenciac%%convenioc%','        ','        ','        ','%dias%'  ,'1 ','0001-01-01','2018-02-27','','DECISAO ','','09:31:16',000,'104 ','','0','0','0.00','1','%multa%') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo (%agenciac%%convenioc%,'%titular%'       ,'02'  ,' ','%convenioc%','00000' ,'%protesto%','00','00','%juros%' ,'%papeleta%'  ,'        ','        ','%agenciac%%convenioc%','        ','        ','        ','%dias%'  ,'1 ','0001-01-01','2018-02-27','','DECISAO ','','09:31:16',000,'104 ','','0','0','0.00','1','%multa%') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (104,32,56,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,21,27,32,56,57,73,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,147,148,149,02                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,29,31,000                 ,395,400,368,389,28,28,0,0,85,106,0,0,0,0,0,0,0,0,'  ',0,0,0,0,0,0,0,0,394,394,1   ,10,11,1                   ,12,26,'COBRANCA' ,27,37,47,76,95,100,0,0, ' ' ,0,0,' ',395,400,000001              ,0,0,' ',390,394,77,79,80,94,18,20,'',0,0,390,391,' ' ,' ' ,57,73,101,103,'007',0,0,' ',0,0,107,108,'01',392,393,'%dias%',176,188,0,0,215,217,'2005-10-27','2018-04-30', >> Homologacao.txt
-echo 'DECISAO','DECISAO' ,' ' ,'14:56:49',0,0,1,1,153,165,166,168,169,173,80,82,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,0,0,107,108) >> Homologacao.txt
-echo where ban3cod=104; >> Homologacao.txt
-echo update banco set (bannom) = ('CAIXA ECONOMICA') where bancod=104  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (104,32,56,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,21,27,32,56,57,73,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,147,148,149,02                  ,150,150,'N',151,156,157,158,159,160,161,173,'%juros%',174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,315,326,327,334,335,349,350,351,29,31,000                 ,395,400,368,389,28,28,0,0,85,106,0,0,0,0,0,0,0,0,'  ',0,0,0,0,0,0,0,0,394,394,1   ,10,11,1                   ,12,26,'COBRANCA' ,27,37,47,76,95,100,0,0, ' ' ,0,0,' ',395,400,000001              ,0,0,' ',390,394,77,79,80,94,18,20,'',0,0,390,391,' ' ,' ' ,57,73,101,103,'007',0,0,' ',0,0,107,108,'01',392,393,'%dias%',176,188,0,0,215,217,'2005-10-27','2018-04-30', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO' ,' ' ,'14:56:49',0,0,1,1,153,165,166,168,169,173,80,82,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,0,0,107,108) >> "%arqHomolog%"
+echo where ban3cod=104; >> "%arqHomolog%"
+echo update banco set (bannom) = ('CAIXA ECONOMICA') where bancod=104  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
-:INTER	
-Echo Titular da conta (Maiusculo)
+:INTER
+ECHO INTER:
+ECHO.	
+Echo Titular da conta (Maximo 50 Caracteres)
 set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
 ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -984,7 +1193,7 @@ set contac=%conta%
 set "contac=000000000%contac%"
 set "contac=%contac:~-10%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -1012,30 +1221,42 @@ for /f "tokens=1,2 delims=." %%a in ("%multa%") do set multac=%%a%%b
 set "multac=00000%multac%"
 set "multac=%multac:~-4%"
 ECHO.
-Echo Data limite de pagamento após vencimento ?
+Echo Data limite de pagamento ap s vencimento ?
 Echo 30 - dias
 Echo 60 - dias
 set /p lpag=
 
-cd desktop
-echo update carban set (cabdtinrg, cabdtalrg, cabusuinc, cabusualt, cabhrinrg, cabhralrg, cabcedente, cabcconson, cabccoultr, cabccolay, cabresimp, cabcodemib, ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem, cabsit, cabarqmod, cabdirret, cabdirrem, cabarqbol) = >> Homologacao.txt
-echo ('2021-09-16', '2021-09-17', '        ', 'DECISAO ', '14:50:20', '09:44:40', '                    ', 0, 0, 0, '  ', '          ', '                    ', '%titular%                ', '                    ', '   ', '%carteirac%%agenciac%%contac%', '00000               ', '%cmulta%', '%cjuros%', '                    ', %juros%, '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', ' ', '1', '0001-01-01', '2021-09-16', '        ', 'DECISAO ', '        ', '17:09:29', '%lpag%', '                    ', '                    ', 1, 0, 0.00, 1, %multa%, 'A', '', '', 'C:\DIFACTW\EXPORTAR\', '') >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (cabdtinrg, cabdtalrg, cabusuinc, cabusualt, cabhrinrg, cabhralrg, cabcedente, cabcconson, cabccoultr, cabccolay, cabresimp, cabcodemib, ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem, cabarqmod, cabdirret, cabdirrem, cabarqbol) = >> "%arqHomolog%"
+echo ('%dataAtual%', '%dataAtual%', '        ', 'DECISAO ', '14:50:20', '%horaFormatada%', '                    ', 0, 0, 0, '  ', '          ', '                    ', '%titular%                ', '                    ', '   ', '%carteirac%%agenciac%%contac%', '00000               ', '%cmulta%', '%cjuros%', '                    ', %juros%, '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', '                    ', ' ', '1', '0001-01-01', '%dataAtual%', '        ', 'DECISAO ', '        ', '%horaFormatada%', '%lpag%', '                    ', '                    ', 1, 0, 0.00, 1, %multa%, '', '', 'C:\DIFACTW\EXPORTAR\', '') >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (77, 38, 62, 90, 91, 92, 97, 0, 0, 0, 0, 160, 172, 0, 0, 0, 0, 0, 0, 21, 37, 38, 62, 66, 70, 0, 0, 0, 0, 109, 110, 111, 120, 121, 126, 127, 139, 0, 0, 0, 0, 148, 149, '99                  ', 150, 150, 'N', 151, 156, 66, 66, 160, 160, 161, 173, %juros%, 0, 0, 185, 197, 198, 201, 202, 220, 221, 222, 0, 223, 236, 237, 276, 277, 316, 0, 0, 317, 324, 0, 0, 0, 0, 90, 100, '00000000000         ', 395, 400, 0, 0, 0, 0, 0, 0, 325, 394, 0, 0, 0, 0, 0, 0, 67, 79, '0000000000000       ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '    ', 1, 9, '01REMESSA           ', 10, 26, '01COBRANCA     ', 27, 46, 47, 76, 95, 100, 0, 0, '                    ', 0, 0, '   ', 395, 400, '1                   ', 0, 0, '  ', 111, 117, 77, 79, 80, 94, 140, 141, '    ', 0, 0, 0, 0, '       ', '                    ', 71, 81, 0, 0, '                                                  ', 0, 0, '                                                  ', 0, 0, 80, 83, '%multac%', 0, 0, 0, 0, 0, 0, 0, 0, 0, '2005-10-27', '2021-09-17', >> Homologacao.txt
-echo  'DECISAO ', 'DECISAO ', '        ', '17:31:01', 0, 0, 1, 1, 125, 137, 138, 140, 141, 144, 241, 380, 0, 0, '                    ', 0, 0, 98, 107, 0, 0, 0, 0, 87, 89) >> Homologacao.txt
-echo where ban3cod=77; >> Homologacao.txt
-echo update banco set (bannom) = ('Inter') where bancod=77  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (77, 38, 62, 90, 91, 92, 97, 0, 0, 0, 0, 160, 172, 0, 0, 0, 0, 0, 0, 21, 37, 38, 62, 66, 70, 0, 0, 0, 0, 109, 110, 111, 120, 121, 126, 127, 139, 0, 0, 0, 0, 148, 149, '99                  ', 150, 150, 'N', 151, 156, 66, 66, 160, 160, 161, 173, %juros%, 0, 0, 185, 197, 198, 201, 202, 220, 221, 222, 0, 223, 236, 237, 276, 277, 316, 0, 0, 317, 324, 0, 0, 0, 0, 90, 100, '00000000000         ', 395, 400, 0, 0, 0, 0, 0, 0, 325, 394, 0, 0, 0, 0, 0, 0, 67, 79, '0000000000000       ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '    ', 1, 9, '01REMESSA           ', 10, 26, '01COBRANCA     ', 27, 46, 47, 76, 95, 100, 0, 0, '                    ', 0, 0, '   ', 395, 400, '1                   ', 0, 0, '  ', 111, 117, 77, 79, 80, 94, 140, 141, '    ', 0, 0, 0, 0, '       ', '                    ', 71, 81, 0, 0, '                                                  ', 0, 0, '                                                  ', 0, 0, 80, 83, '%multac%', 0, 0, 0, 0, 0, 0, 0, 0, 0, '2005-10-27', '%dataAtual%', >> "%arqHomolog%"
+echo  'DECISAO ', 'DECISAO ', '        ', '%horaFormatada%', 0, 0, 1, 1, 125, 137, 138, 140, 141, 144, 241, 380, 0, 0, '                    ', 0, 0, 98, 107, 0, 0, 0, 0, 87, 89) >> "%arqHomolog%"
+echo where ban3cod=77; >> "%arqHomolog%"
+echo update banco set (bannom) = ('Inter') where bancod=77  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
 
 :MONEY PLUS
-Echo Titular da conta (Maiusculo)
-set /p titular=
+ECHO MONEY PLUS:
 ECHO.
+Echo Titular da conta (Maximo 50 Caracteres)
+set /p titular=
+set "titular=%titular:~0,50%"
+set "titularNome=%titular:~0,50%"
+set "titularNome=%titularNome:/=%"
+set "titularNome=%titularNome%"
+if "%titularNome%"=="" set "titularNome=homologacao"
+set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
+ECHO.
+
+IF EXIST "%arqHomolog%" del "%arqHomolog%"
+
 Echo Informe a Agencia sem digito 
 set /p agencia=
 ECHO.
@@ -1055,7 +1276,7 @@ set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-20%"
 ECHO.
-Echo Informe a Carteira (3	 digitos)
+Echo Informe a Carteira (3 digitos)
 set /p carteira=
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
@@ -1079,17 +1300,18 @@ ECHO.
 Echo Informe dias para protesto. (2 digitos, caso nao tenha interesse informar 00)
 set /p dias=
 
-cd desktop
-echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> Homologacao.txt
-echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%dias%                  ','00','                    ',%juros%,'2','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','15:13:46','000                 ','000','                    ',0,0,0.00,1,%multa%) >> Homologacao.txt
-echo  where cconumero=%conta:~0,-1%; >> Homologacao.txt
+ 
+echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
+echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%dias%                  ','00','                    ',%juros%,'2','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','%horaFormatada%','000                 ','000','                    ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
+echo  where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
 
-echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> Homologacao.txt
-echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> Homologacao.txt
-echo (274,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,52,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','2017-08-04', >> Homologacao.txt
-echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108) >> Homologacao.txt
-echo where ban3cod=274; >> Homologacao.txt
-echo update banco set (bannom) = ('BMP Money Plus') where bancod=274  >> Homologacao.txt
-Echo Arquivo Gerado
+echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
+echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf) = >> "%arqHomolog%"
+echo (274,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,52,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,66,66,%cmulta%,67,70,'%multac%',176,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
+echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108) >> "%arqHomolog%"
+echo where ban3cod=274; >> "%arqHomolog%"
+echo update banco set (bannom) = ('BMP Money Plus') where bancod=274  >> "%arqHomolog%"
+Echo Arquivo Gerado:
+echo Salvando em: "%arqHomolog%"
 Pause
 Exit
