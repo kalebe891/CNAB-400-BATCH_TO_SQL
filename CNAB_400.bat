@@ -747,7 +747,7 @@ goto :PERGUNTA_INSTRUCAO_SICREDI
 echo(
 
 :PERGUNTA_INSTRUCAO_SICREDI
-Echo Instrução automatica:
+Echo Instru  o automatica:
 echo(
 Echo 6 - Protesto Automatico
 REM --- Echo 7 - Negativacao Automatica
@@ -771,7 +771,7 @@ rem ---     set "dmprzproi=195"
 rem ---     set "dmprzprof=196"
 rem ---     goto :DIGITA_DIAS_SICREDI 
 rem --- )
-rem --- Instrução 2 bloqueada em codigo.
+rem --- Instru  o 2 bloqueada em codigo.
 
 if "%cInstrucao%"=="0" (
     set "ccbinstr1=00"
@@ -1050,7 +1050,7 @@ echo(
 Echo Emitente da Papeleta?
 echo(
 Echo 1 - Banco
-Echo 2 - Factoring
+Echo 2 - Securitizadora
 echo(
 set /p papeleta=Digite a opcao: 
 set "papeleta=%papeleta: =%"
@@ -1285,7 +1285,7 @@ echo(
 Echo Emitente da Papeleta?
 echo(
 Echo 1 - Banco
-Echo 5 - Factoring
+Echo 5 - Securitizadora
 echo(
 set /p cpapeleta=Digite a opcao: 
 set "cpapeleta=%cpapeleta: =%"
@@ -1611,7 +1611,7 @@ echo(
 Echo Emitente da Papeleta?
 echo(
 Echo 1 - Banco
-Echo 2 - Factoring
+Echo 2 - Securitizadora
 echo(
 set /p papeleta=Digite a opcao: 
 set "papeleta=%papeleta: =%"
@@ -2043,7 +2043,7 @@ goto :PERGUNTA_INSTRUCAO_SICREDI
 echo(
 
 :PERGUNTA_INSTRUCAO_SICREDI
-Echo Instrução automatica:
+Echo Instru  o automatica:
 echo(
 Echo 6 - Protesto Automatico
 REM --- Echo 7 - Negativacao Automatica
@@ -2067,7 +2067,7 @@ rem ---     set "dmprzproi=195"
 rem ---     set "dmprzprof=196"
 rem ---     goto :DIGITA_DIAS_SICREDI 
 rem --- )
-rem --- Instrução 2 bloqueada em codigo.
+rem --- Instru  o 2 bloqueada em codigo.
 
 if "%cInstrucao%"=="0" (
     set "ccbinstr1=00"
