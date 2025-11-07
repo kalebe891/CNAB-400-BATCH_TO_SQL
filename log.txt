@@ -1,0 +1,34 @@
+2.22
+-Adicionado pergunta de CNPJ para inserir valor no numero de convenio (carban/ccohnumco) para Difact/Sicredi.
+
+2.21
+-Papeleta Disecurit alterado de Factoring para Securitizadora
+
+2.2
+-Desenvolvido banco 748-Sicredi para Difact e Disecurit
+-Nomenclatura "Titular" substituído por "Beneficiário"
+-Melhorado redirecionamento (GOTO) para os bancos. Afim de evitar a possibilidade de um sistema acessar o layout bancário de outro sistema.
+
+2.1
+-Refatoramento total do código do Disecurit para melhoria de usabilidade e validações de campos que exigem decisões.
+-Ajustado montagem do código de cedente Disecurit/Safra
+-Removido pergunta de carteira Disecurit/CEF
+-Adicionado menu de decisão no Disecurit/BMP para compor o código do cedente.
+
+2.05
+-Corrigido erro que quebrava o bat ao selecionar DIFACT-BMP
+
+2.0
+-Removido Disecurit/carban/cabsit INTER
+-Melhorado Layout visual
+-Criado composição de nome do arquivo
+-Inserido limite de 50 caracteres para nome do benef.
+-Inserido exclusão de caractere inválido no nome do benef.
+-Melhoria no processo de salvamento do arquivo.
+-Inserção de data e hora atual.
+-Correção no LOOP:DISECURIT em relação a versão 1.7
+
+1.6
+-Ultima versão Tião
+
+
