@@ -83,51 +83,81 @@ set /p titular=Beneficiario da conta (Maximo 50 Caracteres):
 set "titular=%titular:~0,50%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
-set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
 set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
 echo(
 
 IF EXIST "%arqHomolog%" del "%arqHomolog%"
 
-Echo Informe a Agencia com digito
-set /p agencia=
+set /p agencia=Agencia com digito: 
 set agenciac=%agencia%
 set "agenciac=000000000%agenciac%"
 set "agenciac=%agenciac:~-5%"
 echo(
-Echo Informe a Conta com digito
-set /p conta=
+set /p conta=Conta com digito: 
 set contac=%conta%
 set "contac=000000000%contac%"
 set "contac=%contac:~-9%"
 echo(
-Echo Informe o Convenio 
-set /p convenio=
+set /p convenio=Convenio: 
 echo(
-Echo Informe a Carteira (2 digitos)
-set /p carteira=
+set /p carteira=Carteira: 
 echo(
-Echo Informe a Variacao (3 digitos)
-set /p variacao=
+set /p variacao=Variacao: 
 echo(
-Echo Informe os Juros (Informe Valor 0.00 Ex:10.00)
-set /p juros=
-echo(
-Echo Informe Multa (Informe Valor 0.00 Ex:10.00)
-set /p multa=
-echo(
-Echo Protesto ?
-Echo 07 - Sem prostesto
-Echo 03 - Envio apos 3 dias do vencimento
-Echo 04 - Envio apos 4 dias do vencimento
-Echo 05 - Envio apos 5 dias do vencimento
-set /p protesto=
 
+:ENTRADA_JUROS_BB
+set /p juros=Informe o Juros A.M. (Ex:1.30): 
+if "%juros%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :ENTRADA_JUROS_BB
+)
+echo(
+
+:ENTRADA_MULTA_BB
+set /p multa=Informe Multa (Ex:3.00): 
+if "%multa%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :ENTRADA_MULTA_BB
+)
+echo(
+
+:PERGUNTA_PROTESTO_BB
+Echo Protesto?
+echo(
+Echo 07 - Sem prostesto
+Echo 03 - Envio apos 3 dias uteis do vencimento
+Echo 04 - Envio apos 4 dias uteis do vencimento
+Echo 05 - Envio apos 5 dias uteis do vencimento
+echo 10 - Envio apos 10 dias corridos do vencimento
+echo 15 - Envio apos 15 dias corridos do vencimento
+echo 20 - Envio apos 20 dias corridos do vencimento
+echo 25 - Envio apos 25 dias corridos do vencimento
+echo 30 - Envio apos 30 dias corridos do vencimento
+echo 45 - Envio apos 45 dias corridos do vencimento
+echo(
+set /p protesto=Digite a opcao: 
+set "protesto=%protesto: =%"
+
+if "%protesto%"=="07" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="03" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="04" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="05" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="10" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="15" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="20" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="25" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="30" goto :GERAR_ARQUIVO_DFCT_BB
+if "%protesto%"=="45" goto :GERAR_ARQUIVO_DFCT_BB
+
+echo Opcao invalida! Tente novamente.
+echo(
+goto :PERGUNTA_PROTESTO_BB
+
+:GERAR_ARQUIVO_DFCT_BB
 echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
 echo ('%agenciac%%contac%000000','%titular%','02                  ','   ','%agenciac%%contac%      ','0000                ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','%convenio%','                    ','                    ',' 000000                ','                  ','7                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','                    ','001                 ','%convenio%',0,0,0.00,1,%multa%) >> "%arqHomolog%"
 echo where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
-
 echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
 echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
 echo (1,39,63,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,31,38,62,64,80,0,0,107,108,109,110,111,120,121,126,127,139,140,142,143,146,148,149,'1                   ',150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,271,275,314,315,326,327,334,335,349,350,351,92,94,'                    ',395,400,352,391,0,0,88,88,0,0,81,84,0,0,89,91,92,94,'%variacao%                 ',32,38,95,95,0,0,96,101,0,0,'    ',10,11,'1                   ',12,19,'COBRANCA       ',27,46,47,76,95,100,0,0,'                    ',0,0,'   ',395,400,'1                   ',0,0,'  ',101,107,77,79,80,94,0,0,'    ',392,393,0,0,'0000                ','                    ',64,80,0,0,'                                                  ',0,0,'                                                  ',0,0,0,0,'                                                  ',0,0,'                                                  ',182,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
