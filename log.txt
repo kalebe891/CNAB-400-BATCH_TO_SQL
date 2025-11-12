@@ -1,3 +1,6 @@
+2.23
+-Refatorado layout Difact/BB
+
 2.22
 -Adicionado pergunta de CNPJ para inserir valor no numero de convenio (carban/ccohnumco) para Difact/Sicredi.
 
