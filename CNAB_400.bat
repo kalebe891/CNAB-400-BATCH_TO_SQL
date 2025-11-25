@@ -318,10 +318,7 @@ Pause
 Exit
 
 :ITAU_DIFACT
-Echo Itau:
-echo(
-Echo Beneficiario da conta (Maximo 50 Caracteres)
-set /p titular=
+set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
 set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
@@ -333,48 +330,82 @@ echo(
 
 IF EXIST "%arqHomolog%" del "%arqHomolog%"
 
-Echo Informe a Agencia
-set /p agencia=
+set /p agencia=Informe a Agencia: 
 set agenciac=%agencia%
 set "agenciac=000000000%agenciac%"
 set "agenciac=%agenciac:~-4%"
 echo(
-Echo Informe a Conta com digito
-set /p conta=
+set /p conta=Informe a Conta com digito: 
 set contac=%conta%
 set "contac=000000000%contac%"
 set "contac=%contac:~-6%"
 echo(
-Echo Informe a Carteira ( 3 digitos)
-set /p carteira=
+set /p carteira=Informe a Carteira ( 3 digitos): 
 echo(
-Echo Informe os Juros (Informe Valor 0.00 Ex:10.00)
-set /p juros=
-echo(
-Echo Informe Multa (Informe Valor 0.00 Ex:10.00)
-set /p multa=
-echo(
-Echo Protesto?
-Echo 09 - Com Protesto Automatico
-Echo 10 - Sem Protesto
-set /p protesto=
-echo(
-Echo Informe dias para protesto (2 digitos)
-set /p dias=
- 
 
+:ENTRADA_JUROS_ITAU
+set /p juros=Informe os Juros A.M. (Ex:3.00): 
+if "%juros%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :ENTRADA_JUROS_ITAU
+)
+echo(
+
+:ENTRADA_MULTA_ITAU
+set /p multa=Informe Multa (Ex:8.00): 
+if "%multa%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :ENTRADA_MULTA_ITAU
+)
+echo(
+
+:PERGUNTA_PROTESTO_ITAU
+Echo Protesto Automatico?
+echo(
+Echo 9 - Com Protesto
+Echo 0 - Sem Protesto
+echo(
+set /p cprotesto=Digite a opcao: 
+set "cprotesto=%cprotesto: =%"
+if "%cprotesto%"=="9" (
+    set "protesto=09"
+    goto :DIGITA_DIAS_PROTESTO_ITAU
+)
+if "%cprotesto%"=="0" (
+    set "protesto=10"
+    set "dias=00"
+    goto :GERAR_ARQUIVO_ITAU
+)
+echo Opcao invalida! Digite apenas 8 ou 9.
+echo(
+goto :PERGUNTA_PROTESTO_ITAU
+
+:DIGITA_DIAS_PROTESTO_ITAU
+echo(
+set /p dias=Informe dias para protesto (2 digitos): 
+if "%dias%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :DIGITA_DIAS_PROTESTO_ITAU
+)
+echo %dias%| findstr /R "^[0-9][0-9]$" >nul || (
+    echo( & echo Valor invalido! Digite exatamente 2 numeros. & echo(
+    goto :DIGITA_DIAS_PROTESTO_ITAU
+)
+goto :GERAR_ARQUIVO_ITAU
+ 
+:GERAR_ARQUIVO_ITAU
 echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbdtalrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
 echo ('%agenciac%00%contac%','%titular%','02                  ','   ','%agenciac%00%contac%','00000               ','%protesto%                  ','                    ','                    ',%juros%,'                    ','                    ','                    ','           ','                    ','                    ','                    ','%dias%   ','1                   ','0001-01-01','%dataAtual%','        ','DECISAO ','        ','%horaFormatada%','341                  ','                 ','         ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
 echo where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
-
 echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali,dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
 echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
 echo (341,38,62,109,110,111,116,228,240,241,253,254,266,267,279,2,3,4,17,18,29,38,62,63,70,0,0,84,86,109,110,111,120,121,126,127,139,0,0,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,264,275,314,315,326,327,334,335,349,350,351,108,108,'I'                   ,395,400,352,381,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'                    ',0,0,0,0,0,0,0,0,0,0,'    ',1,9,'01REMESSA           ',10,26,'01COBRANCA     ',27,38,47,76,95,100,0,0,'                    ',18,19,'CA' ,395,400,1                   ,0,0,'  ',0,0,77,79,80,94,140,142,'    ',392,393,0,0,'          ','            ',63,70,0,0,'          ',0,0,'                    ' ,0,0,34,37,'0000',71,83,'0000000000000',176,188,0,0,215,227,'2005-10-27','2017-08-07', >> "%arqHomolog%"
 echo 'DECISAO' ,'DECISAO' ,'        ','%horaFormatada%',0,0,1,1,153,165,166,168,169,172,378,385,1,26,'02RETORNO01COBRANCA',395,400,117,126,0,0,280,292,83,85,0,0,0,0,0,0) >> "%arqHomolog%"
 echo where ban3cod=341; >> "%arqHomolog%"
 echo update banco set (bannom) = ('BANCO ITAU SA') where bancod=341 >> "%arqHomolog%"
-Echo Arquivo Gerado:
-echo Salvando em: "%arqHomolog%"
+echo(
+Echo Arquivo Gerado: "%arqHomolog%"
+echo(
 Pause
 Exit
 
