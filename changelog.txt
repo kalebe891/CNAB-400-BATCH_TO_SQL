@@ -1,3 +1,7 @@
+2.25
+-Refatorado layout Difact/Bradesco
+-Criado regra para permitir & no nome dos beneficiários.
+
 2.23
 -Refatorado layout Difact/BB
 
