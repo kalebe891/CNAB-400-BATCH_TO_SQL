@@ -1,5 +1,6 @@
 2.25
 -Refatorado layout Difact/Bradesco
+-Refatorado layout Difact/Itau
 -Criado regra para permitir & no nome dos beneficiários.
 
 2.23
