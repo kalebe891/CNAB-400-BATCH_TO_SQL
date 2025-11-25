@@ -1267,23 +1267,23 @@ if "%multa%"=="" (
 echo(
 
 :PERGUNTA_PROTESTO_ITAU
-Echo Protesto?
+Echo Protesto Automatico?
 echo(
-Echo 8 - Com Protesto Automatico
-Echo 9 - Sem Protesto
+Echo 9 - Com Protesto
+Echo 0 - Sem Protesto
 echo(
 set /p cprotesto=Digite a opcao: 
 set "cprotesto=%cprotesto: =%"
-if "%cprotesto%"=="8" (
+if "%cprotesto%"=="9" (
     set "protesto=09"
     goto :DIGITA_DIAS_PROTESTO_ITAU
 )
-if "%cprotesto%"=="9" (
+if "%cprotesto%"=="0" (
     set "protesto=10"
     set "dias=00"
     goto :GERAR_ARQUIVO_ITAU
 )
-echo Opcao invalida! Digite apenas 8 ou 9.
+echo Opcao invalida! Digite apenas 0 ou 9.
 echo(
 goto :PERGUNTA_PROTESTO_ITAU
 
