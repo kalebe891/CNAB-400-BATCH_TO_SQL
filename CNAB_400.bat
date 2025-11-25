@@ -81,8 +81,9 @@ GOTO :DIFACT
 :BB_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 if "%titularNome%"=="" set "titularNome=homologacao"
 set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
@@ -172,8 +173,9 @@ Exit
 :BRADESCO_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -320,8 +322,9 @@ Exit
 :ITAU_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -415,8 +418,9 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -508,8 +512,9 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -578,8 +583,9 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -665,8 +671,9 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -741,8 +748,9 @@ Exit
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -813,8 +821,9 @@ Exit
 :SICREDI_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 if "%titularNome%"=="" set "titularNome=homologacao"
 set "arqHomolog=%~dp0Homologacao %titularNome%.txt"
@@ -979,8 +988,9 @@ GOTO :DISECURIT
 :BB_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1073,8 +1083,9 @@ Exit
 :BRADESCO_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1215,8 +1226,9 @@ Exit
 :ITAU_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1307,8 +1319,9 @@ Exit
 :SANTANDER_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1461,8 +1474,9 @@ Exit
 :SAFRA_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1608,8 +1622,9 @@ Exit
 :CEF_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1781,8 +1796,9 @@ Exit
 :INTER_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -1921,8 +1937,9 @@ Exit
 :BMP_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -2118,8 +2135,9 @@ Exit
 :SICREDI_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
-set "titular=%titular:^&=&%"
+set "titular=%titular:&=^&%"
 set "titularNome=%titular:~0,50%"
+set "titularNome=%titular:^&=&%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
 if "%titularNome%"=="" set "titularNome=homologacao"
