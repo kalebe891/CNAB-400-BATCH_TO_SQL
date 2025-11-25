@@ -81,6 +81,7 @@ GOTO :DIFACT
 :BB_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -169,11 +170,9 @@ Pause
 Exit
 
 :BRADESCO_DIFACT
-Echo Bradesco:
-echo(
-Echo Beneficiario da conta (Maximo 50 Caracteres)
-set /p titular=
+set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -183,71 +182,138 @@ echo(
 
 IF EXIST "%arqHomolog%" del "%arqHomolog%"
 
-Echo Informe a Agencia sem digito 
-set /p agencia=
-echo(
+set /p agencia=Informe a Agencia sem digito: 
 set agenciac=%agencia%
 set "agenciac=000000000%agenciac%"
 set "agenciac=%agenciac:~-5%"
 echo(
-Echo Informe a Conta com Digito Verificador
-set /p conta=
+set /p conta=Informe a Conta com Digito Verificador: 
 set contac=%conta%
 set "contac=000000000%contac%"
 set "contac=%contac:~-8%"
 echo(
-Echo Informe o Codigo da Empresa 
-set /p convenio=
+set /p convenio=Informe o Codigo da Empresa: 
 set convenioc=%convenio%
 set "convenioc=000000000000000000%convenioc%"
 set "convenioc=%convenioc:~-20%"
 echo(
-Echo Informe a Carteira (3 digitos)
-set /p carteira=
+set /p carteira=Informe a Carteira (3 digitos): 
 set carteirac=%carteira%
 set "carteirac=000000%carteirac%"
 set "carteirac=%carteirac:~-3%"
 echo(
-Echo Informe os Juros (Informe Valor 0.00 Ex:10.00)
-set /p juros=
+
+:ENTRADA_JUROS_BRADESCO
+set /p juros=Informe os Juros A.M. (Ex:1.50): 
+if "%juros%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :ENTRADA_JUROS_BRADESCO
+)
 echo(
-Echo Ira cobrar Multa ?
+
+:PERGUNTA_MULTA_BRADESCO
+Echo Cobrar Multa ?
+echo(
 Echo 0 - Nao
 Echo 2 - Sim
-set /p cmulta=
 echo(
-Echo Informe Multa (Informe Valor 0.00 Ex:10.00)
-set /p multa=
+set /p cmulta=Digite a opcao: 
+set "cmulta=%cmulta: =%"
+echo(
+if "%cmulta%"=="0" (
+    set "multa=0.00"
+    set "multac=0000"
+    goto :PERGUNTA_PROTESTO_BRADESCO
+)
+if "%cmulta%"=="2" (
+    goto :DIGITA_MULTA_BRADESCO
+)
+echo Opcao invalida! Digite apenas 0 ou 2.
+goto :PERGUNTA_MULTA_BRADESCO
+echo(
+
+:DIGITA_MULTA_BRADESCO
+set /p multa=Informe o valor da Multa (Ex:6.00):
+echo( 
+if "%multa%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :DIGITA_MULTA_BRADESCO
+)
 for /f "tokens=1,2 delims=." %%a in ("%multa%") do set multac=%%a%%b
 set "multac=00000%multac%"
 set "multac=%multac:~-4%"
 echo(
-Echo Protesto?
-Echo 00 - Sem prostesto
-Echo 06 - Com Protesto Automatico
-set /p protesto=
+goto :PERGUNTA_PROTESTO_BRADESCO
+
+:PERGUNTA_PROTESTO_BRADESCO
+Echo Protestar ou Negativar automaticamente?
 echo(
-Echo Informe dias para protesto, no minimo 05 dias. (2 digitos)
-set /p dias=
+Echo 0 - Sem protesto
+Echo 6 - Protestar
+ECHO 7 - Negativar
 echo(
-Echo Emitente da Papeleta? (1 Digito)
+set /p cprotesto=Digite a opcao: 
+set "cprotesto=%cprotesto: =%"
+echo(
+if "%cprotesto%"=="0" (
+    set "protesto=00"
+    set "dias=00"
+    goto :PERGUNTA_PAPELETA_BRADESCO
+)
+if "%cprotesto%"=="6" (
+    set "protesto=06"
+    goto :DIGITA_DIAS_PROTESTO_BRADESCO
+)
+if "%cprotesto%"=="7" (
+    set "protesto=07"
+    goto :DIGITA_DIAS_PROTESTO_BRADESCO
+)
+echo Opcao invalida! Digite um valor valido.
+echo(
+goto :PERGUNTA_PROTESTO_BRADESCO
+
+:DIGITA_DIAS_PROTESTO_BRADESCO
+set /p dias=Informe dias para protesto (minimo 3 dias): 
+echo(
+if "%dias%"=="" (
+    echo( & echo Valor invalido, tente novamente. & echo(
+    goto :DIGITA_DIAS_PROTESTO_BRADESCO
+)
+echo %dias%| findstr /R "^[0-9][0-9]$" >nul || (
+    echo( & echo Valor invalido! Digite exatamente 2 numeros. & echo(
+    goto :DIGITA_DIAS_PROTESTO_BRADESCO
+)
+echo(
+goto :PERGUNTA_PAPELETA_BRADESCO
+
+
+:PERGUNTA_PAPELETA_BRADESCO
+Echo Emitente da Papeleta?
+echo(
 Echo 1 - Banco
 Echo 2 - Factoring
-set /p papeleta=
-
+echo(
+set /p papeleta=Digite a opcao: 
+set "papeleta=%papeleta: =%"
+if "%papeleta%"=="1" goto :GERAR_ARQUIVO_BRADESCO
+if "%papeleta%"=="2" goto :GERAR_ARQUIVO_BRADESCO
+echo Opcao invalida! Digite apenas 1 ou 2.
+echo(
+goto :PERGUNTA_PAPELETA_BRADESCO
  
+:GERAR_ARQUIVO_BRADESCO
 echo update carban set (ccbcodemp, ccbnomcli, ccbcodins, ccbcodcar, ccbcodced, ccbagecob, ccbinstr1, ccbinstr2, ccbinstr3, ccbjurmor, ccbimppap, ccbprimen, ccbsegmen, ccbnumcon, ccbctacau, ccbcodres, ccbnumbor, ccbprzpro, ccbtipcon, ccbdtinrg, ccbusuinc, ccbusualt, ccbhrinrg, ccbhralrg, ccbbacodc, ccbbacodd, ccbhnumco, ccbfebdtj, ccbfebdtd, ccbfebped, ccbfebdtm, ccbfebpem) = >> "%arqHomolog%"
 echo ('%convenioc%','%titular%','02                  ','   ','0%carteirac%%agenciac%%contac%      ','00000                ','%protesto%                  ','%dias%               ','                    ',%juros%,'%papeleta%            ','                    ','                    ','            ','                    ','                    ','                    ','                  ','1                   ','0001-01-01','        ','DECISAO ','        ','%horaFormatada%','000                 ','000','                    ',0,0,0.00,1,%multa%) >> "%arqHomolog%"
 echo where cconumero=%conta:~0,-1%; >> "%arqHomolog%"
-
 echo update cnabdep set (ban3cod, dnusoempi, dnusoempf, dncodocoi, dncodocof, dndatbani, dndatbanf, dnabatiti, dnabatitf, dndesconi, dndesconf, dnvlrpagi, dnvlrpagf, dnjurmori, dnjurmorf, dmcodinsci, dmcodinscf, dmnuminsci, dmnuminscf, dmcodclii, dmcodclif, dmusoempi, dmusoempf, dmnosnumi, dmnosnumf, dmusobani, dmusobanf, dmcodcari, dmcodcarf, dmcodocoi, dmcodocof, dmseunumi, dmseunumf, dmdiaveni, dmdiavenf, dmvlrtiti, dmvlrtitf, dmbancodi, dmbancodf, dmagecobri, dmagecobrf, dmespdocsi, dmespdocsf, dmespdocsc, dmaceitei, dmaceitef, dmaceitec, dmdatemisi, dmdatemisf, dminstru1i, dminstru1f, dminstru2i, dminstru2f, dmjurmorai, dmjurmoraf, dmjurmorac, dmdatdesci, dmdatdescf, dmvlrdesci, dmvlrdescf, dmvlriofi, dmvlrioff, dmvlrabati, dmvlrabatf, dmcinssaci, dmcinssacf, dmcinssacc, dmninssaci, dmninssacf, dmsacnomi, dmsacnomf, dmsaclogi, dmsaclogf, dmsacbaii, dmsacbaif, dmsaccepi, dmsaccepf, dmsaccidi, dmsaccidf, dmsacufi, dmsacuff, dmcomplemi, dmcomplemf, dmcomplemc, dmsequeni, dmsequenf, dmsacavali, dmsacavalf, dmimppapi, dmimppapf, dmavanomi, dmavanomf, dmprimeni, dmprimenf, dmnumprei, dmnumpref, dmindvlri, dmindvlrf, dmpretiti, dmpretitf, dmvariaci, dmvariacf, dmvariacc, dmnumconi, dmnumconf, dmctacaui, dmctacauf, dmcodresi, dmcodresf, dmnumbori, dmnumborf, dmmoedai, dmmoedaf, dmmoedac, hmcodservi, hmcodservf, hmcodservc, hmlitservi, hmlitservf, hmlitservc, hmcodcedi, hmcodcedf, hmnomclii, hmnomclif, hmdatgravi, hmdatgravf, hmdensidi, hmdensidf, hmdensidc, hmlitdensi, hmlitdensf, hmlitdensc, hmsequenci, hmsequencf, hmsequencc, hmidesisi, hmidesisf, hmidesisc, hmremcrei, hmremcref, hmbancodi, hmbancodf, hmbannomi, hmbannomf, dmbanco2i, dmbanco2f, dmpretitc, dmprzproi, dmprzprof, dmins003i, dmins003f, dmnumprec, dmindvlrc, dnnsonumi, dnnsonumf, hmli1ini, hmli1fim, hmli1con, hmli2ini, hmli2fim, hmli2con, dmclicpfi, dmclicpff, dmli1ini, dmli1fim, dmli1con, dmli2ini, dmli2fim, dmli2con, dndestari, dndestarf, dnoutdesi, dnoutdesf, dniofi, dnioff, ban3dtinrg, ban3dtalrg, ban3usuinc,>> "%arqHomolog%"
 echo ban3usualt, ban3hrinrg, ban3hralrg, hmnumconi, hmnumconf, dmtipconi, dmtipconf, dnvaltiti, dnvaltitf, dnbanreci, dnbanrecf, dnagereci, dnagerecf, dncodmtvi, dncodmtvf, hnlitseri, hnlitserf, hnclitser, hnseqreti, hnseqretf, dnnumtiti, dnnumtitf, dninssaci, dninssacf, dnoutreci, dnoutrecf, dncarbani, dncarbanf, hnbancodi, hnbancodf, hncconumi, hncconumf, hnagecodi, hnagecodf) = >> "%arqHomolog%"
 echo (237,38,62,109,110,111,116,228,240,241,253,254,266,267,279,0,0,0,0,21,37,38,62,71,82,0,0,22,24,109,110,111,120,121,126,127,139,63,65,143,147,148,149,01,150,150,'N',151,156,157,158,159,160,161,173,%juros%,174,179,180,192,193,205,206,218,219,220,0,221,234,235,274,275,314,0,0,327,334,0,0,0,0,0,0,'',395,400,335,394,93,93,0,0,315,326,0,0,0,0,0,0,0,0,'',0,0,0,0,0,0,0,0,0,0,'',10,11,01,12,26,'COBRANCA',27,46,47,76,95,100,0,0,'',0,0,'',395,400,1,109,110,'MX',111,117,77,79,80,94,140,142,'',0,0,0,0,0,0,71,82,0,0,'',0,0,'',0,0,0,0,'',0,0,'',176,188,189,201,215,227,'2005-10-27','%dataAtual%', >> "%arqHomolog%"
 echo 'DECISAO','DECISAO','','14:56:55',0,0,0,0,153,165,166,168,169,173,319,328,1,9,'02RETORNO',95,100,117,126,0,0,280,292,108,108,0,0,0,0,0,0) >> "%arqHomolog%"
 echo where ban3cod=237; >> "%arqHomolog%"
 echo update banco set (bannom) = ('BRADESCO') where bancod=237  >> "%arqHomolog%"
-Echo Arquivo Gerado:
-echo Salvando em: "%arqHomolog%"
+Echo(
+echo Arquivo Gerado: "%arqHomolog%"
+echo(
 Pause
 Exit
 
@@ -257,6 +323,7 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -317,6 +384,7 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -409,6 +477,7 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -478,6 +547,7 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -564,6 +634,7 @@ echo(
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -639,6 +710,7 @@ Exit
 Echo Beneficiario da conta (Maximo 50 Caracteres)
 set /p titular=
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -710,6 +782,7 @@ Exit
 :SICREDI_DIFACT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 if "%titularNome%"=="" set "titularNome=homologacao"
@@ -875,6 +948,7 @@ GOTO :DISECURIT
 :BB_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -968,6 +1042,7 @@ Exit
 :BRADESCO_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1109,6 +1184,7 @@ Exit
 :ITAU_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1200,6 +1276,7 @@ Exit
 :SANTANDER_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1353,6 +1430,7 @@ Exit
 :SAFRA_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1499,6 +1577,7 @@ Exit
 :CEF_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1671,6 +1750,7 @@ Exit
 :INTER_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -1810,6 +1890,7 @@ Exit
 :BMP_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
@@ -2006,6 +2087,7 @@ Exit
 :SICREDI_DISECURIT
 set /p titular=Beneficiario da conta (Maximo 50 Caracteres): 
 set "titular=%titular:~0,50%"
+set "titular=%titular:^&=&%"
 set "titularNome=%titular:~0,50%"
 set "titularNome=%titularNome:/=%"
 set "titularNome=%titularNome%"
